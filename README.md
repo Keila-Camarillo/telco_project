@@ -19,6 +19,7 @@ My initial hypothesis is that drivers of churn will be elements such as cost, de
 * Aquire data from Codeup database
 
 * Prepare data
+
 - Create Engineered columns from existing data
     * churn
     * monthly_charge

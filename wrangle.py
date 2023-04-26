@@ -34,88 +34,29 @@ def get_telco_data(directory=os.getcwd(), filename="telco_churn.csv"):
         df.to_csv(filename)
         return df
 
-# def prep_telco(df=get_telco_data(directory=os.getcwd())):
-#     '''
-#     The function will clean the telco dataset
-#     '''
-#     # drop unecessary columns
-#     df = df.drop(columns=["internet_service_type_id", "contract_type_id", "payment_type_id"])
-    
-#     # create dummies
-#     dummy_df = pd.get_dummies(df[[
-#                                  "multiple_lines",
-#                                  "online_security",
-#                                  "online_backup",
-#                                  "device_protection", 
-#                                  "tech_support",
-#                                  "streaming_tv",
-#                                  "streaming_movies", 
-#                                  "contract_type", 
-#                                  "internet_service_type",
-#                                  "payment_type"]],
-#                               drop_first=True)
-#     df = df.drop(columns=["gender", "partner", "dependents", , "churn_month",  "internet_service_type", "payment_type", "tech_support", "signup_date" ])
-#     df = pd.concat([df, dummy_df], axis=1)
-#     df.total_charges = df.total_charges.str.replace(' ', '0').astype(float)
-    return df
-
-def prep_telco_2(df=get_telco_data(directory=os.getcwd())):
-    '''
-    The function will clean the telco dataset
-    '''
-    # drop unecessary columns
-    df = df.drop(columns=["internet_service_type_id", "contract_type_id", "payment_type_id"])
-    # encoding payment type automatic payment equals 1 and non_automatic equals 0
-    df["payment_encoded"] = df.payment_type.map({"Bank transfer (automatic)": 1, "Credit card (automatic)": 1, "Mailed check": 0, "Electronic check": 0})
-    
-    # create dummies
-    dummy_df = pd.get_dummies(df[["partner",
-                                 "dependents", 
-                                 "paperless_billing", 
-                                 "churn"]],
-                              drop_first=True)
-    df = df.drop(columns=["gender", 
-                            "online_security",
-                            "multiple_lines",
-                            "online_backup",
-                            "device_protection", 
-                            "tech_support",
-                            "streaming_tv",
-                            "streaming_movies", 
-                            "contract_type", 
-                            "internet_service_type",
-                            "churn_month",  
-                            "internet_service_type",
-                            "tech_support",
-                            "signup_date" ])
-    df = pd.concat([df, dummy_df], axis=1)
-    df.total_charges = df.total_charges.str.replace(' ', '0').astype(float)
-    return df
-
 def prep_telco(df=get_telco_data(directory=os.getcwd())):
     '''
     The function will clean the telco dataset.
     The function will also return to dataframes:
-    df = for modeling
-    exp_df = for exploring 
     '''
     # encoding payment type automatic payment equals 1 and non_automatic equals 0
     df["automatic_payment"] = df["payment_type"].map({"Bank transfer (automatic)": 1, "Credit card (automatic)": 1, "Mailed check": 0, "Electronic check": 0})
-    exp_df = df[["partner", "dependents", "paperless_billing", "automatic_payment", "churn"]]
+
     # create dummies
     dummy_df = pd.get_dummies(df[["partner",
                                  "dependents", 
                                  "paperless_billing", 
-                                 "churn"]],
+                                 "churn",
+                                 "gender"]],
                               drop_first=True)
-    # df for explore
-    exp_df = pd.concat([exp_df, dummy_df], axis=1)
+    df = pd.concat([df, dummy_df], axis=1)
     # rename columns
-    df = exp_df.drop(columns=["partner", "dependents", "paperless_billing", "churn"])
-    df = df.rename(columns={"partner_Yes": "partner", "dependents_Yes": "dependents", "paperless_billing_Yes": "paperless_billing", "churn_Yes": "churn" })
+    df = df[["partner_Yes", "dependents_Yes", "paperless_billing_Yes", "automatic_payment", "churn_Yes", "gender_Male", "tenure"]]
+    
+    df = df.rename(columns={"partner_Yes": "partner", "dependents_Yes": "dependents", "paperless_billing_Yes": "paperless_billing", "churn_Yes": "churn", "gender_Male": "gender" })
     # df for modeling
-    df = df[["partner", "dependents", "paperless_billing", "automatic_payment", "churn"]]
-    return df, exp_df
+    
+    return df
 
 def split_data(df, target_variable):
     '''

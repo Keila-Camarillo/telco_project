@@ -7,6 +7,18 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 from scipy import stats
 
+def churn_pie(train):
+    '''
+    This function shows a pie chart of the percentage of customers that have churned within the training data
+    '''
+    y = train.churn.value_counts(normalize=True)
+
+    mylabels = ["Did Not Churn", "Did Churn"]
+
+    plt.pie(y, labels = mylabels, autopct='%1.1f%%')
+
+    plt.show() 
+
 def cross_function(train, target_variable, feature_variable, null_hypothesis, alternative_hypothesis, alpha=0.05):
     '''
     This function will take the train, target_variable, feature_variable, null_hypothesis, alternative_hypothesis, alpha=0.05
@@ -22,7 +34,7 @@ def cross_function(train, target_variable, feature_variable, null_hypothesis, al
     else:
         print("Fail to reject the null")
         print("Insufficient evidence to reject the null")
-    return p
+    print(f" chi^2 = {chi2} p = {p}")
 
 def relationship_churn(train, graph_title, feature, target):
     '''
@@ -35,7 +47,7 @@ def relationship_churn(train, graph_title, feature, target):
     sns.barplot(x=feature, y=target, data=train)
     population_churn_rate = train.churn.mean()
 
-    tick_label = ["Did Not Churn", "Did Churn"]
+    tick_label = ["No", "Yes"]
     ax.set_xticklabels(tick_label)
     # sns.distplot(train)
 
