@@ -34,9 +34,10 @@ def get_telco_data(directory=os.getcwd(), filename="telco_churn.csv"):
         df.to_csv(filename)
         return df
 
-def prep_telco(df=get_telco_data(directory=os.getcwd())):
+
+def prep_clean_telco(df=get_telco_data(directory=os.getcwd())):
     '''
-    The function will clean the telco dataset.
+    The function will clean the telco dataset with feature only for modeling.
     The function will also return to dataframes:
     '''
     # encoding payment type automatic payment equals 1 and non_automatic equals 0
@@ -46,14 +47,38 @@ def prep_telco(df=get_telco_data(directory=os.getcwd())):
     dummy_df = pd.get_dummies(df[["partner",
                                  "dependents", 
                                  "paperless_billing", 
-                                 "churn",
-                                 "gender"]],
+                                 "churn"]],
+                              drop_first=True)
+    df = pd.concat([df, dummy_df], axis=1)
+    # rename columns
+    df = df[["partner_Yes", "dependents_Yes", "paperless_billing_Yes", "automatic_payment", "churn_Yes", "tenure"]]
+    
+    df = df.rename(columns={"partner_Yes": "partner", "dependents_Yes": "dependents", "paperless_billing_Yes": "paperless_billing", "churn_Yes": "churn"})
+    # df for modeling
+    
+    return df
+
+
+def prep_telco(df=get_telco_data(directory=os.getcwd())):
+    '''
+    The function will clean the telco dataset with features prior to explore.
+    The function will also return to dataframes:
+    '''
+    # encoding payment type automatic payment equals 1 and non_automatic equals 0
+    df["automatic_payment"] = df["payment_type"].map({"Bank transfer (automatic)": 1, "Credit card (automatic)": 1, "Mailed check": 0, "Electronic check": 0})
+
+    # create dummies
+    dummy_df = pd.get_dummies(df[["partner",
+                                 "dependents", 
+                                 "paperless_billing", 
+                                 "gender",
+                                 "churn"]],
                               drop_first=True)
     df = pd.concat([df, dummy_df], axis=1)
     # rename columns
     df = df[["partner_Yes", "dependents_Yes", "paperless_billing_Yes", "automatic_payment", "churn_Yes", "gender_Male", "tenure"]]
     
-    df = df.rename(columns={"partner_Yes": "partner", "dependents_Yes": "dependents", "paperless_billing_Yes": "paperless_billing", "churn_Yes": "churn", "gender_Male": "gender" })
+    df = df.rename(columns={"partner_Yes": "partner", "dependents_Yes": "dependents", "paperless_billing_Yes": "paperless_billing",  "gender_Male": "gender","churn_Yes": "churn"})
     # df for modeling
     
     return df
